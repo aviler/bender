@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "parse.h"
+#include "parser.h"
 
-#define bufSize 1024
+
 
 
 int invalidValue(int *value) {
@@ -22,7 +22,7 @@ int invalidValue(int *value) {
     return 1;
   }
 
-  if (*value < 3) {
+  if (*value < MIN_ROWCOL_VALUE) {
     printf("Error: Minimum value for rows/columns is 3\n");
     return 1;
   }
@@ -44,10 +44,10 @@ int extractNumberOfRowsCollumns(char *line, int *row, int *col) {
   return 0;
 }
 
-int parseFile(int argc, char *argv[], char **map, char **startPoint) {
+int parseFile(int argc, char *argv[], Map **map) {
 
   FILE* mapFile;
-  char buf[bufSize];
+  char buf[BUFFER_SIZE];
 
   int row = 0;
   int col = 0;
@@ -72,13 +72,16 @@ int parseFile(int argc, char *argv[], char **map, char **startPoint) {
 
   }
 
+  (*map)->row = row;
+  (*map)->col = col;
+
   printf("Map dimensions: %d x %d\n\n", row, col);
 
   // Read map from file, allocating char matrix and save starting point
   char ch;
   int r,c = 0;
 
-  *map = (char *)malloc(row * col * sizeof(char));
+  (*map)->firstTile = (char *)malloc(row * col * sizeof(char));
 
   while ((ch = fgetc(mapFile)) != EOF) {
 
@@ -88,10 +91,10 @@ int parseFile(int argc, char *argv[], char **map, char **startPoint) {
     } else {
 
       if (ch == '@') {
-        *startPoint = (*map) + r*col + c;
+        (*map)->startPoint = (*map)->firstTile + r*col + c;
       }
 
-      *((*map) + r*col + c) = ch;
+      *(((*map)->firstTile) + r*col + c) = ch;
       c++;
     }
   }
