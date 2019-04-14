@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   if (parseFile(argc, argv, &map_ptr)) return EXIT_FAILURE;
 
   // Simulate path that Bender would walk
-  simulatePath(&map);
+  if (simulatePath(&map)) return EXIT_FAILURE;
 
   // Printing parsed map for debug
   for (int r = 0; r <  10; r++) {
