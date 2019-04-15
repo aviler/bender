@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   if (simulatePath(&map)) return EXIT_FAILURE;
 
   // Printing parsed map for debug
-  printMap(map_ptr);
+  // printMap(map_ptr);
 
   free(map.firstTile);
 

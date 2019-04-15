@@ -14,3 +14,21 @@ void printMap(Map *map) {
     printf("\n");
   }
 }
+
+void printDirection(enum directions currDirection) {
+  switch (currDirection)
+  {
+    case SOUTH:
+      printf("SOUTH\n");
+      break;
+    case EAST:
+      printf("EAST\n");
+      break;
+    case NORTH:
+      printf("NORTH\n");
+      break;
+    case WEST:
+      printf("WEST\n");
+      break;
+  }
+}

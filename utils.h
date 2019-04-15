@@ -16,6 +16,8 @@ enum directions { SOUTH, EAST, NORTH, WEST };
 struct map {
   char *firstTile;
   char *startPoint;
+  char *teleporterOne;
+  char *teleporterTwo;
   int row;
   int col;
 };
@@ -31,5 +33,6 @@ typedef struct bender Bender;
 
 // Functions
 void printMap(Map *map);
+void printDirection(enum directions currDirection);
 
 #endif //BENDER_UTILS_H

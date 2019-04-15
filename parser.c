@@ -79,6 +79,7 @@ int parseFile(int argc, char *argv[], Map **map) {
   char ch;
   int r = 0;
   int c = 0;
+  int teleportersFound = 0;
 
   (*map)->firstTile = (char *)malloc(row * col * sizeof(char));
 
@@ -90,7 +91,23 @@ int parseFile(int argc, char *argv[], Map **map) {
     } else {
 
       if (ch == '@') {
-        (*map)->startPoint = (*map)->firstTile + r*col + c;
+        (*map)->startPoint = (*map)->firstTile + r * col + c;
+      }
+
+      if (ch == 'T') {
+        switch (teleportersFound) {
+          case 0:
+            teleportersFound++;
+            (*map)->teleporterOne = (*map)->firstTile + r * col + c;
+            break;
+          case 1:
+            teleportersFound++;
+            (*map)->teleporterTwo = (*map)->firstTile + r * col + c;
+            break;
+          default:
+            printf("ERROR: The maximum number of teleporters allowed is 2");
+            return 1;
+        }
       }
 
       *(((*map)->firstTile) + r*col + c) = ch;

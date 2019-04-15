@@ -22,25 +22,13 @@ void drinkBeer(Bender **bender) {
     (*bender)->isBreakerModeOn = 1;
 }
 
-void printCurrentDirection(enum directions currDirection) {
-  switch (currDirection)
-  {
-    case SOUTH:
-      printf("SOUTH\n");
-      break;
-    case EAST:
-      printf("EAST\n");
-      break;
-    case NORTH:
-      printf("NORTH\n");
-      break;
-    case WEST:
-      printf("WEST\n");
-      break;
-  }
+void enterTeleporter(Map *map, Bender **bender) {
+  if ((*bender)->currentTile == map->teleporterOne)
+    (*bender)->currentTile = map->teleporterTwo;
+  else
+    (*bender)->currentTile = map->teleporterOne;
 }
 
-// update direction when a move is made
 int updateDirection(Bender **bender) {
 
   if ((*bender)->isCircuitInverted) {
@@ -109,7 +97,6 @@ int move(Map *map, Bender **bender) {
     if( !((*bender)->isBreakerModeOn) && *nextTile == 'X' )
       updateDirection(bender);
 
-    // TODO: test this logic again
     nextTrys++;
     if(nextTrys > 3){
       printf("LOOP\n");
@@ -120,12 +107,12 @@ int move(Map *map, Bender **bender) {
 
   (*bender)->currentTile = nextTile;
 
-  printCurrentDirection((*bender)->currDirection);
+  printDirection((*bender)->currDirection);
 
   return 0;
 }
 
-int updateState(Bender **bender) {
+int updateState(Map *map, Bender **bender) {
 
   // #, X, @, $, S, E, N, W, B, I, T
 
@@ -160,7 +147,7 @@ int updateState(Bender **bender) {
       drinkBeer(bender);
       break;
     case 'T':
-      printf("Implement Teleporter");
+      enterTeleporter(map, bender);
       break;
     default:
       printf("ERROR: Founded unexpected symbol -> %c\n", *(*bender)->currentTile);
@@ -169,7 +156,6 @@ int updateState(Bender **bender) {
 
   return 0;
 }
-
 
 int simulatePath(Map *map) {
 
@@ -187,7 +173,7 @@ int simulatePath(Map *map) {
     if (move(map, &bender_ptr)) return 1;
 
     // Update state based on the current tile
-    if (updateState(&bender_ptr)) return 1;
+    if (updateState(map, &bender_ptr)) return 1;
 
 
     // When didnt reach suicide booth even moving through all the possible map tiles (row-2)*(col-2)
@@ -199,7 +185,6 @@ int simulatePath(Map *map) {
     }
 
   }
-
 
   return 0;
 }
