@@ -75,11 +75,10 @@ int parseFile(int argc, char *argv[], Map **map) {
   (*map)->row = row;
   (*map)->col = col;
 
-  printf("Map dimensions: %d x %d\n\n", row, col);
-
   // Read map from file, allocating char matrix and save starting point
   char ch;
-  int r,c = 0;
+  int r = 0;
+  int c = 0;
 
   (*map)->firstTile = (char *)malloc(row * col * sizeof(char));
 

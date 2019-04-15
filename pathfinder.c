@@ -5,19 +5,17 @@
 #include <stdio.h>
 
 #include "pathfinder.h"
+#include "utils.h"
 
-enum directions { SOUTH, EAST, NORTH, WEST }; // put in utils.h after
-int isCircuitInverted = 0; // maybe a robot structure?
-enum directions currDirection = SOUTH;
 
-void shortCircuit() {
-  if (isCircuitInverted)
-    isCircuitInverted = 0;
+void shortCircuit(Bender **bender) {
+  if ((*bender)->isCircuitInverted)
+    (*bender)->isCircuitInverted = 0;
   else
-    isCircuitInverted = 1;
+    (*bender)->isCircuitInverted = 1;
 }
 
-void printCurrentDirection() {
+void printCurrentDirection(enum directions currDirection) {
   switch (currDirection)
   {
     case SOUTH:
@@ -36,38 +34,38 @@ void printCurrentDirection() {
 }
 
 // update direction when a move is made
-int updateDirection() {
+int updateDirection(Bender **bender) {
 
-  if (isCircuitInverted) {
-    switch (currDirection)
+  if ((*bender)->isCircuitInverted) {
+    switch ((*bender)->currDirection)
     {
       case SOUTH:
-        currDirection = WEST;
+        (*bender)->currDirection = WEST;
         break;
       case EAST:
-        currDirection = SOUTH;
+        (*bender)->currDirection = SOUTH;
         break;
       case NORTH:
-        currDirection = EAST;
+        (*bender)->currDirection = EAST;
         break;
       case WEST:
-        currDirection = NORTH;
+        (*bender)->currDirection = NORTH;
         break;
     }
   }else{
-    switch (currDirection)
+    switch ((*bender)->currDirection)
     {
       case SOUTH:
-        currDirection = EAST;
+        (*bender)->currDirection = EAST;
         break;
       case EAST:
-        currDirection = NORTH;
+        (*bender)->currDirection = NORTH;
         break;
       case NORTH:
-        currDirection = WEST;
+        (*bender)->currDirection = WEST;
         break;
       case WEST:
-        currDirection = SOUTH;
+        (*bender)->currDirection = SOUTH;
         break;
     }
   }
@@ -75,33 +73,33 @@ int updateDirection() {
   return 0;
 }
 
-int move(Map *map, char **currentTile) {
+int move(Map *map, Bender **bender) {
 
-  char *nextTile = *currentTile;
+  char *nextTile = (*bender)->currentTile;
   int nextTrys = 0;
 
   do {
 
-    switch (currDirection)
+    switch ((*bender)->currDirection)
     {
       case SOUTH:
-        nextTile = *currentTile + (map->col * sizeof(char));
+        nextTile = (*bender)->currentTile + (map->col * sizeof(char));
         break;
       case EAST:
-        nextTile = *currentTile + sizeof(char);
+        nextTile = (*bender)->currentTile + sizeof(char);
         break;
       case NORTH:
-        nextTile = *currentTile - (map->col * sizeof(char));
+        nextTile = (*bender)->currentTile - (map->col * sizeof(char));
         break;
       case WEST:
-        nextTile = *currentTile - sizeof(char);
+        nextTile = (*bender)->currentTile - sizeof(char);
         break;
     }
 
     // TODO: check for beer mode
     // in beer mode it breaks X obstacles otherwise X is like #
     if(*nextTile == '#')
-      updateDirection();
+      updateDirection(bender);
 
     nextTrys++;
     if(nextTrys > 3){
@@ -111,18 +109,18 @@ int move(Map *map, char **currentTile) {
 
   } while (*nextTile == '#');
 
-  *currentTile = nextTile;
+  (*bender)->currentTile = nextTile;
 
-  printCurrentDirection();
+  printCurrentDirection((*bender)->currDirection);
 
   return 0;
 }
 
-void updateState(char *currentTile) {
+void updateState(Bender **bender) {
 
   // #, X, @, $, S, E, N, W, B, I, T
 
-  switch (*currentTile)
+  switch (*(*bender)->currentTile)
   {
     case ' ':
       break;
@@ -131,22 +129,22 @@ void updateState(char *currentTile) {
     case '@':
       break;
     case 'S':
-      currDirection = SOUTH;
+      (*bender)->currDirection = SOUTH;
       break;
     case 'E':
-      currDirection = EAST;
+      (*bender)->currDirection = EAST;
       break;
     case 'N':
-      currDirection = NORTH;
+      (*bender)->currDirection = NORTH;
       break;
     case 'W':
-      currDirection = WEST;
+      (*bender)->currDirection = WEST;
       break;
     case 'I':
-      shortCircuit();
+      shortCircuit(bender);
       break;
     case 'B':
-      currDirection = WEST;
+      printf("Implement beer");
       break;
     case 'T':
       printf("Implement Teleporter");
@@ -157,23 +155,24 @@ void updateState(char *currentTile) {
   }
 }
 
+
 int simulatePath(Map *map) {
 
-  // If Bender makes this ammount of movements without reaching the suicidal booth
+  // If Bender makes this amount of movements without reaching the suicidal booth
   // we declare as LOOP and now we can calm down knowing that he will not die today.
   int maxMoves = ((*map).row - 2)*((*map).col - 2);
   int moves = 0;
 
-  char *currentTile = (*map).startPoint;
+  Bender bender = {(*map).startPoint, 0, SOUTH};
+  Bender *bender_ptr = &bender;
 
-
-  while (*currentTile != '$') {
+  while (*bender.currentTile != '$') {
 
     // Make a move
-    if (move(map, &currentTile)) return 1;
+    if (move(map, &bender_ptr)) return 1;
 
     // Update state based on the current tile
-    updateState(currentTile);
+    updateState(&bender_ptr);
 
 
     // When didnt reach suicide booth even moving through all the possible map tiles (row-2)*(col-2)
@@ -181,14 +180,11 @@ int simulatePath(Map *map) {
     moves++;
     if(moves >= maxMoves) {
       printf("LOOP\n");
-      printf("Bender will never reach the suicide booth\n");
       return 0;
     }
 
   }
 
-  printf("Bender did reach $\n");
 
   return 0;
-
 }

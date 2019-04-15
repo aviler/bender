@@ -9,6 +9,8 @@
 #define BUFFER_SIZE 1024
 #define MIN_ROWCOL_VALUE 4
 
+// Enuns
+enum directions { SOUTH, EAST, NORTH, WEST };
 
 // Structs
 struct map {
@@ -18,5 +20,15 @@ struct map {
   int col;
 };
 typedef struct map Map;
+
+struct bender {
+  char *currentTile;
+  int isCircuitInverted;
+  enum directions currDirection;
+};
+typedef struct bender Bender;
+
+// Functions
+void printMap(Map *map);
 
 #endif //BENDER_UTILS_H
