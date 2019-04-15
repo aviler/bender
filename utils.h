@@ -23,8 +23,9 @@ typedef struct map Map;
 
 struct bender {
   char *currentTile;
-  int isCircuitInverted;
   enum directions currDirection;
+  int isCircuitInverted;
+  int isBreakerModeOn;
 };
 typedef struct bender Bender;
 

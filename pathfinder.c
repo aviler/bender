@@ -15,6 +15,13 @@ void shortCircuit(Bender **bender) {
     (*bender)->isCircuitInverted = 1;
 }
 
+void drinkBeer(Bender **bender) {
+  if ((*bender)->isBreakerModeOn)
+    (*bender)->isBreakerModeOn = 0;
+  else
+    (*bender)->isBreakerModeOn = 1;
+}
+
 void printCurrentDirection(enum directions currDirection) {
   switch (currDirection)
   {
@@ -96,18 +103,20 @@ int move(Map *map, Bender **bender) {
         break;
     }
 
-    // TODO: check for beer mode
-    // in beer mode it breaks X obstacles otherwise X is like #
     if(*nextTile == '#')
       updateDirection(bender);
 
+    if( !((*bender)->isBreakerModeOn) && *nextTile == 'X' )
+      updateDirection(bender);
+
+    // TODO: test this logic again
     nextTrys++;
     if(nextTrys > 3){
       printf("LOOP\n");
       return 1;
     }
 
-  } while (*nextTile == '#');
+  } while ((*nextTile == '#') || (*nextTile == 'X' && !((*bender)->isBreakerModeOn) ));
 
   (*bender)->currentTile = nextTile;
 
@@ -116,7 +125,7 @@ int move(Map *map, Bender **bender) {
   return 0;
 }
 
-void updateState(Bender **bender) {
+int updateState(Bender **bender) {
 
   // #, X, @, $, S, E, N, W, B, I, T
 
@@ -127,6 +136,10 @@ void updateState(Bender **bender) {
     case '$':
       break;
     case '@':
+      break;
+    case 'X':
+      if((*bender)->isBreakerModeOn)
+        *((*bender)->currentTile) = ' ';
       break;
     case 'S':
       (*bender)->currDirection = SOUTH;
@@ -144,15 +157,17 @@ void updateState(Bender **bender) {
       shortCircuit(bender);
       break;
     case 'B':
-      printf("Implement beer");
+      drinkBeer(bender);
       break;
     case 'T':
       printf("Implement Teleporter");
       break;
     default:
-      printf("ERROR\n");
-      break;
+      printf("ERROR: Founded unexpected symbol -> %c\n", *(*bender)->currentTile);
+      return 1;
   }
+
+  return 0;
 }
 
 
@@ -163,7 +178,7 @@ int simulatePath(Map *map) {
   int maxMoves = ((*map).row - 2)*((*map).col - 2);
   int moves = 0;
 
-  Bender bender = {(*map).startPoint, 0, SOUTH};
+  Bender bender = {(*map).startPoint, SOUTH, 0, 0};
   Bender *bender_ptr = &bender;
 
   while (*bender.currentTile != '$') {
@@ -172,7 +187,7 @@ int simulatePath(Map *map) {
     if (move(map, &bender_ptr)) return 1;
 
     // Update state based on the current tile
-    updateState(&bender_ptr);
+    if (updateState(&bender_ptr)) return 1;
 
 
     // When didnt reach suicide booth even moving through all the possible map tiles (row-2)*(col-2)
