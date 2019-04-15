@@ -56,4 +56,4 @@ Changelog
 ---------
 
  - 0.1 - File map parser and release to show in Master
- 
+ - 1.0 - Finished the requirements. Now we have a truly working release :metal:
