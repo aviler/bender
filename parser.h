@@ -5,6 +5,9 @@
 #ifndef IOT_PARSE_H
 #define IOT_PARSE_H
 
-int parseFile(int argc, char *argv[], char **map, char **startPoint);
+#include "utils.h"
+
+
+int parseFile(int argc, char *argv[], Map **map);
 
 #endif //IOT_PARSE_H

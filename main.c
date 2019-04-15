@@ -5,26 +5,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "parse.h"
+#include "utils.h"
+#include "parser.h"
+#include "pathfinder.h"
 
 
 int main(int argc, char *argv[]) {
 
-  char *map = NULL;
-  char *startPoint = NULL;
+  Map map = {NULL, NULL, 0, 0};
+  Map *map_ptr = &map;
 
-  // Parse file, initialize map data structure and set starting point
-  if (parseFile(argc, argv, &map, &startPoint)) return EXIT_FAILURE;
+  // Parse file and initialize map data structure
+  if (parseFile(argc, argv, &map_ptr)) return EXIT_FAILURE;
 
+  // Simulate path that Bender would walk
+  if (simulatePath(&map)) return EXIT_FAILURE;
 
-  // Printing parsed map
-  for (int r = 0; r <  10; r++) {
-    for (int c = 0; c < 10; c++)
-      printf("%c", *(map + r * 10 + c));
-    printf("\n");
-  }
+  // Printing parsed map for debug
+  // printMap(map_ptr);
 
-  printf("%c", *startPoint);
+  free(map.firstTile);
 
   return EXIT_SUCCESS;
 }
