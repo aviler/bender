@@ -16,15 +16,21 @@ int main(int argc, char *argv[]) {
   Map *map_ptr = &map;
 
   // Parse file and initialize map data structure
-  if (parseFile(argc, argv, &map_ptr)) return EXIT_FAILURE;
+  if (parseFile(argc, argv, &map_ptr)) {
+    if(map.firstTile != NULL)
+      free(map.firstTile);
+    return EXIT_FAILURE;
+  }
 
   // Simulate path that Bender would walk
-  if (simulatePath(&map)) return EXIT_FAILURE;
+  if (simulatePath(&map)) {
+    free(map.firstTile);
+    return EXIT_FAILURE;
+  }
 
   // Printing parsed map for debug
   // printMap(map_ptr);
 
   free(map.firstTile);
-
   return EXIT_SUCCESS;
 }
